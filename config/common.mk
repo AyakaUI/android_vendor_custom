@@ -37,6 +37,10 @@ endif
 PRODUCT_COPY_FILES += \
     vendor/custom/config/permissions/privapp-permissions-lineagehw.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-lineagehw.xml
 
+# Google Photos Pixel Exclusive XML
+PRODUCT_COPY_FILES += \
+    vendor/custom/prebuilt/common/etc/sysconfig/pixel_2016_exclusive.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_2016_exclusive.xml
+
 # Overlay
 PRODUCT_PACKAGE_OVERLAYS += \
     vendor/custom/overlay/common
