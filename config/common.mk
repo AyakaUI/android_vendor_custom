@@ -93,3 +93,10 @@ include vendor/custom/config/ota.mk
 
 # Version
 include vendor/custom/config/version.mk
+
+SOONG_CONFIG_NAMESPACES += lineageGlobalVars
+SOONG_CONFIG_lineageGlobalVars += \
+    spoof_first_api_level_32
+
+# Soong bool variables
+SOONG_CONFIG_lineageGlobalVars_spoof_first_api_level_32 := $(SPOOF_FIRST_API_LEVEL_32)
