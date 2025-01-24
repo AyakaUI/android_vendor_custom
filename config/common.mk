@@ -72,6 +72,12 @@ PRODUCT_PACKAGES += \
     GoogleDialerOverlayCustom \
     SettingsOverlayCustom
 
+# Quick Tap
+ifneq ($(TARGET_SUPPORTS_QUICK_TAP),false)
+PRODUCT_PACKAGES += \
+    ColumbusService
+endif
+
 # TouchGesture
 PRODUCT_PACKAGES += \
     TouchGestures
