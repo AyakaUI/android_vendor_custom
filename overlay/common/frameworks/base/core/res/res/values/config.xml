@@ -283,6 +283,11 @@
         <item>device_personalization_services/Overview__enable_superpacks_pir_protocol=true</item>
         <item>device_personalization_services/Overview__min_lens_agsa_app_version=301084649</item>
 
+       <!-- Now Playing -->
+        <item>device_personalization_services/NowPlaying__enable_now_playing_lock_screen_update=true</item>
+        <item>device_personalization_services/NowPlaying__enable_now_playing_quick_affordance=true</item>
+        <item>device_personalization_services/NowPlaying__enable_now_playing_quick_settings=true</item>
+
         <!-- Screen attention (Pixel 2019) -->
         <item>device_personalization_services/Attention__accel_sensor_enabled=false</item>
         <item>device_personalization_services/Attention__accel_sensor_threshold_mss=0.2</item>
