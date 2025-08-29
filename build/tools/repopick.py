@@ -216,7 +216,7 @@ def main():
         description=textwrap.dedent(
             """\
         repopick.py is a utility to simplify the process of cherry picking
-        patches from LineageOS's Gerrit instance (or any gerrit instance of your choosing)
+        patches from PixelOS's Gerrit instance (or any gerrit instance of your choosing)
 
         Given a list of change numbers, repopick will cd into the project path
         and cherry pick the latest patch available.
@@ -302,7 +302,7 @@ def main():
     parser.add_argument(
         "-g",
         "--gerrit",
-        default="https://review.lineageos.org",
+        default="https://review.pixelos.net",
         metavar="",
         help="Gerrit Instance to use. Form proto://[user@]host[:port]",
     )
