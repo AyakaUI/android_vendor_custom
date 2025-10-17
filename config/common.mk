@@ -24,6 +24,9 @@ PRODUCT_COPY_FILES += \
     vendor/custom/config/permissions/privapp-permissions-lineagehw.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-lineagehw.xml
 
 # Overlay
+PRODUCT_PACKAGE_OVERLAYS += \
+    vendor/custom/overlay/common
+
 PRODUCT_PACKAGES += \
     FrameworkOverlayCustom \
     SettingsOverlayCustom
