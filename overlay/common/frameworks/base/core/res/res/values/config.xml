@@ -259,6 +259,8 @@
         <item>launcher/long_press_home_button_to_search_mpr=true</item>
         <item>launcher/LPNH_SLOP_PERCENTAGE=71</item>
         <item>launcher/LPNH_TIMEOUT_MS=400</item>
+        <item>launcher/ANIMATE_LPNH=true</item>
+        <item>launcher/SHRINK_NAV_HANDLE_ON_PRESS=true</item>
         <item>launcher/press_hold_nav_handle_to_search=true</item>
         <item>launcher/press_hold_nav_handle_to_search_mpr=true</item>
         <item>launcher/show_search_educard_qsb=true</item>
