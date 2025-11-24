@@ -48,6 +48,10 @@ PRODUCT_PACKAGES += \
     LMOFreeform \
     LMOFreeformSidebar
 
+# Themes
+PRODUCT_PACKAGES += \
+    AndroidBlackThemeOverlay
+
 # Overlay
 PRODUCT_PACKAGES += \
     FrameworkOverlayCustom \
