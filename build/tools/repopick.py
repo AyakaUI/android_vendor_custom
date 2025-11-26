@@ -198,6 +198,10 @@ def is_lineage_gerrit(remote_url):
     p = urllib.parse.urlparse(remote_url)
     return p.hostname == "review.lineageos.org"
 
+def is_pixelos_gerrit(remote_url):
+    p = urllib.parse.urlparse(remote_url)
+    return p.hostname == "review.pixelos.net"
+
 
 def commit_exists(project_path, revision):
     return (
@@ -657,7 +661,7 @@ def do_git_fetch_pull(args, item):
     cmd.extend(["", item["fetch"][method]["ref"]])
 
     # Try fetching from GitHub first if using lineage gerrit
-    if is_lineage_gerrit(args.gerrit):
+    if is_lineage_gerrit(args.gerrit) or is_pixelos_gerrit(args.gerrit):
         if args.verbose:
             print("Trying to fetch the change from GitHub")
 
