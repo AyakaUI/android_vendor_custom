@@ -665,7 +665,12 @@ def do_git_fetch_pull(args, item):
         if args.verbose:
             print("Trying to fetch the change from GitHub")
 
-        cmd[-2] = "github"
+        if is_lineage_gerrit(args.gerrit):
+            remote_name = "lineageos"
+        else:
+            remote_name = "github"
+
+        cmd[-2] = remote_name
         if not args.quiet:
             print(cmd)
         result = subprocess.call(cmd, cwd=project_path)
