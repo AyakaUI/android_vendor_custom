@@ -49,6 +49,10 @@ PRODUCT_PACKAGES += \
     FrameworkOverlayCustom \
     SettingsOverlayCustom
 
+# TouchGesture
+PRODUCT_PACKAGES += \
+    TouchGestures
+
 # Updater
 include vendor/custom/config/ota.mk
 
