@@ -9,7 +9,6 @@ CUSTOM_VERSION_PROP := sixteen
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.custom.build.date=$(CUSTOM_BUILD_DATE) \
     ro.custom.device=$(CUSTOM_BUILD) \
-    ro.custom.fingerprint=$(ROM_FINGERPRINT) \
     ro.custom.version=PixelOS_$(CUSTOM_VERSION)
 
 # Updater
