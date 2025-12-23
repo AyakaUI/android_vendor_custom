@@ -50,7 +50,7 @@ if not depsonly:
 repositories = []
 
 if not depsonly:
-    api_url = "https://api.github.com/orgs/PixelOS-Devices/repos?per_page=100"
+    api_url = f"https://api.github.com/search/repositories?q={device}+in:name+org:PixelOS-Devices"
     try:
         with urllib.request.urlopen(api_url, timeout=10) as response:
             repos_json = json.loads(response.read().decode())
@@ -61,7 +61,7 @@ if not depsonly:
         print("Failed to parse return data from GitHub API")
         sys.exit(1)
     # Extract repository names
-    for repo in repos_json:
+    for repo in repos_json['items']:
         repositories.append(repo['name'])
 
 local_manifests = r'.repo/local_manifests'
