@@ -14,16 +14,16 @@
 # limitations under the License.
 
 # -----------------------------------------------------------------
-# PixelOS OTA update package
+# FlavorOS OTA update package
 
-CUSTOM_TARGET_PACKAGE := $(PRODUCT_OUT)/PixelOS_$(CUSTOM_VERSION).zip
+FLAVOR_TARGET_PACKAGE := $(PRODUCT_OUT)/FlavorOS_$(FLAVOR_VERSION).zip
 
 MD5 := prebuilts/build-tools/path/$(HOST_PREBUILT_TAG)/md5sum
 
-$(CUSTOM_TARGET_PACKAGE): $(INTERNAL_OTA_PACKAGE_TARGET)
-	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(CUSTOM_TARGET_PACKAGE)
-	$(hide) $(MD5) $(CUSTOM_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(CUSTOM_TARGET_PACKAGE).md5sum
-	@echo "Package Complete: $(CUSTOM_TARGET_PACKAGE)" >&2
+$(FLAVOR_TARGET_PACKAGE): $(INTERNAL_OTA_PACKAGE_TARGET)
+	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(FLAVOR_TARGET_PACKAGE)
+	$(hide) $(MD5) $(FLAVOR_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(FLAVOR_TARGET_PACKAGE).md5sum
+	@echo "Package Complete: $(FLAVOR_TARGET_PACKAGE)" >&2
 
-.PHONY: pixelos
-pixelos: $(CUSTOM_TARGET_PACKAGE) $(DEFAULT_GOAL)
+.PHONY: flavoros
+flavoros: $(FLAVOR_TARGET_PACKAGE) $(DEFAULT_GOAL)
