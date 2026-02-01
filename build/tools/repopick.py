@@ -198,9 +198,9 @@ def is_lineage_gerrit(remote_url):
     p = urllib.parse.urlparse(remote_url)
     return p.hostname == "review.lineageos.org"
 
-def is_pixelos_gerrit(remote_url):
+def is_flavoros_gerrit(remote_url):
     p = urllib.parse.urlparse(remote_url)
-    return p.hostname == "review.pixelos.net"
+    return p.hostname == "review.flavoros.net"
 
 
 def commit_exists(project_path, revision):
@@ -306,7 +306,7 @@ def main():
     parser.add_argument(
         "-g",
         "--gerrit",
-        default="https://review.pixelos.net",
+        default="https://review.flavoros.net",
         metavar="",
         help="Gerrit Instance to use. Form proto://[user@]host[:port]",
     )
@@ -661,7 +661,7 @@ def do_git_fetch_pull(args, item):
     cmd.extend(["", item["fetch"][method]["ref"]])
 
     # Try fetching from GitHub first if using lineage gerrit
-    if is_lineage_gerrit(args.gerrit) or is_pixelos_gerrit(args.gerrit):
+    if is_lineage_gerrit(args.gerrit) or is_flavoros_gerrit(args.gerrit):
         if args.verbose:
             print("Trying to fetch the change from GitHub")
 
