@@ -8,7 +8,7 @@ CUSTOM_VERSION_PROP := sixteen
 # FlavorOS Platform Version
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.custom.build.date=$(CUSTOM_BUILD_DATE) \
-    ro.custom.device=$(CUSTOM_BUILD) \
+    ro.flavor.device=$(FLAVOR_BUILD) \
     ro.custom.version=Flavor_$(CUSTOM_VERSION)
 
 # Versioning System
