@@ -10,9 +10,9 @@ if [ -z "$DEVICE" ]; then
 fi
 
 # -------- CONFIG --------
-ROM_NAME=FlavorOS
-ANDROID_VERSION=16.1
-BUILD_VERSION=BP3A
+ROM_NAME=AyakaUI
+ANDROID_VERSION=16.2
+BUILD_VERSION=BP4A
 OUT="out/target/product/$DEVICE"
 OTA_REPO="ota"
 OTA_JSON="${OTA_REPO}/${DEVICE}.json"
@@ -57,7 +57,7 @@ cd "$OTA_REPO"
 git add "${DEVICE}.json"
 
 if git diff --cached --quiet; then
-    echo "ℹ️ Nenhuma mudança no OTA"
+    echo "ℹ️ None change on OTA"
     exit 0
 fi
 

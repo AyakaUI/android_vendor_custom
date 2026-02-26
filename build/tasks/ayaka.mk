@@ -14,16 +14,16 @@
 # limitations under the License.
 
 # -----------------------------------------------------------------
-# FlavorOS OTA update package
+# AyakaUI OTA update package
 
-FLAVOR_TARGET_PACKAGE := $(PRODUCT_OUT)/FlavorOS_$(FLAVOR_VERSION).zip
+AYAKA_TARGET_PACKAGE := $(PRODUCT_OUT)/AyakaUI_$(AYAKA_VERSION).zip
 
 MD5 := prebuilts/build-tools/path/$(HOST_PREBUILT_TAG)/md5sum
 
-$(FLAVOR_TARGET_PACKAGE): $(INTERNAL_OTA_PACKAGE_TARGET)
-	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(FLAVOR_TARGET_PACKAGE)
-	$(hide) $(MD5) $(FLAVOR_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(FLAVOR_TARGET_PACKAGE).md5sum
-	@echo "Package Complete: $(FLAVOR_TARGET_PACKAGE)" >&2
+$(AYAKA_TARGET_PACKAGE): $(INTERNAL_OTA_PACKAGE_TARGET)
+	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(AYAKA_TARGET_PACKAGE)
+	$(hide) $(MD5) $(AYAKA_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(AYAKA_TARGET_PACKAGE).md5sum
+	@echo "Package Complete: $(AYAKA_TARGET_PACKAGE)" >&2
 
-.PHONY: flavoros
-flavoros: $(FLAVOR_TARGET_PACKAGE) $(DEFAULT_GOAL)
+.PHONY: ayaka
+ayaka: $(AYAKA_TARGET_PACKAGE) $(DEFAULT_GOAL)

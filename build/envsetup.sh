@@ -9,12 +9,12 @@ function check_product()
         echo "Couldn't locate the top of the tree. Try setting TOP." >&2
         return
     fi
-    if (echo -n $1 | grep -q -e "^flavor_") ; then
-        FLAVOR_BUILD=$(echo -n $1 | sed -e 's/^flavor_//g')
+    if (echo -n $1 | grep -q -e "^ayaka_") ; then
+        AYAKA_BUILD=$(echo -n $1 | sed -e 's/^ayaka_//g')
     else
-        FLAVOR_BUILD=
+        AYAKA_BUILD=
     fi
-    export FLAVOR_BUILD
+    export AYAKA_BUILD
 
         TARGET_PRODUCT=$1 \
         TARGET_RELEASE=$2 \
@@ -29,7 +29,7 @@ function brunch()
 {
     breakfast $*
     if [ $? -eq 0 ]; then
-        mka flavoros
+        mka ayaka
     else
         echo "No such item in brunch menu. Try 'breakfast'"
         return 1
@@ -56,7 +56,7 @@ function breakfast()
                 variant="userdebug"
             fi
 
-            lunch flavor_$target-$aosp_target_release-$variant
+            lunch ayaka_$target-$aosp_target_release-$variant
         fi
     fi
     return $?
@@ -75,13 +75,13 @@ function eat()
         echo "Waiting for device..."
         adb wait-for-device-recovery
         echo "Found device"
-        if (adb shell getprop ro.flavor.device | grep -q "$FLAVOR_BUILD"); then
+        if (adb shell getprop ro.ayaka.device | grep -q "$AYAKA_BUILD"); then
             echo "Rebooting to sideload for install"
             adb reboot sideload-auto-reboot
             adb wait-for-sideload
             adb sideload $ZIPPATH
         else
-            echo "The connected device does not appear to be $FLAVOR_BUILD, run away!"
+            echo "The connected device does not appear to be $AYAKA_BUILD, run away!"
         fi
         return $?
     else
@@ -205,28 +205,28 @@ function dddclient()
    fi
 }
 
-function flavorosremote()
+function ayakauiremote()
 {
     if ! git rev-parse --git-dir &> /dev/null
     then
         echo ".git directory not found. Please run this from the root directory of the Android repository you wish to set up."
         return 1
     fi
-    git remote rm flavoros 2> /dev/null
+    git remote rm ayakaui 2> /dev/null
     local REMOTE=$(git config --get remote.github.projectname)
-    local FLAVOROS="true"
+    local AYAKAUI="true"
     if [ -z "$REMOTE" ]
     then
         REMOTE=$(git config --get remote.aosp.projectname)
-        FLAVOROS="false"
+        AYAKAUI="false"
     fi
     if [ -z "$REMOTE" ]
     then
         REMOTE=$(git config --get remote.clo.projectname)
-        FLAVOROS="false"
+        AYAKAUI="false"
     fi
 
-    if [ $FLAVOROS = "false" ]
+    if [ $AYAKAUI = "false" ]
     then
         local PROJECT=$(echo $REMOTE | sed -e "s#platform/#android/#g; s#/#_#g")
         local PFX="FlavorOS/"
@@ -234,14 +234,14 @@ function flavorosremote()
         local PROJECT=$REMOTE
     fi
 
-    local FLAVOROS_USER=$(git config --get review.review.flavoros.net.username)
-    if [ -z "$FLAVOROS_USER" ]
+    local AYAKAUI_USER=$(git config --get review.review.ayakaui.net.username)
+    if [ -z "$AYAKAUI_USER" ]
     then
-        git remote add flavoros ssh://review.flavoros.net:29418/$PFX$PROJECT
+        git remote add ayakaui ssh://review.ayakaui.net:29418/$PFX$PROJECT
     else
-        git remote add flavoros ssh://$FLAVOROS_USER@review.flavoros.net:29418/$PFX$PROJECT
+        git remote add ayakaui ssh://$AYAKAUI_USER@review.ayakaui.net:29418/$PFX$PROJECT
     fi
-    echo "Remote 'flavoros' created"
+    echo "Remote 'ayakaui' created"
 }
 
 function aospremote()
@@ -368,14 +368,14 @@ function installboot()
     adb wait-for-device-recovery
     adb root
     adb wait-for-device-recovery
-    if (adb shell getprop ro.flavor.device | grep -q "$FLAVOR_BUILD");
+    if (adb shell getprop ro.ayaka.device | grep -q "$AYAKA_BUILD");
     then
         adb push $OUT/boot.img /cache/
         adb shell dd if=/cache/boot.img of=$PARTITION
         adb shell rm -rf /cache/boot.img
         echo "Installation complete."
     else
-        echo "The connected device does not appear to be $FLAVOR_BUILD, run away!"
+        echo "The connected device does not appear to be $AYAKA_BUILD, run away!"
     fi
 }
 
@@ -406,18 +406,18 @@ function installrecovery()
     adb wait-for-device-recovery
     adb root
     adb wait-for-device-recovery
-    if (adb shell getprop ro.flavor.device | grep -q "$FLAVOR_BUILD");
+    if (adb shell getprop ro.ayaka.device | grep -q "$AYAKA_BUILD");
     then
         adb push $OUT/recovery.img /cache/
         adb shell dd if=/cache/recovery.img of=$PARTITION
         adb shell rm -rf /cache/recovery.img
         echo "Installation complete."
     else
-        echo "The connected device does not appear to be $FLAVOR_BUILD, run away!"
+        echo "The connected device does not appear to be $AYAKA_BUILD, run away!"
     fi
 }
 
-function flavorosgerrit() {
+function ayakauigerrit() {
     if [ "$(basename $SHELL)" = "zsh" ]; then
         # zsh does not define FUNCNAME, derive from funcstack
         local FUNCNAME=$funcstack[1]
@@ -427,7 +427,7 @@ function flavorosgerrit() {
         $FUNCNAME help
         return 1
     fi
-    local user=`git config --get review.review.flavoros.net.username`
+    local user=`git config --get review.review.ayakaui.net.username`
     local review=`git config --get remote.github.review`
     local project=`git config --get remote.github.projectname`
     local command=$1
@@ -463,7 +463,7 @@ EOF
             case $1 in
                 __cmg_*) echo "For internal use only." ;;
                 changes|for)
-                    if [ "$FUNCNAME" = "flavorosgerrit" ]; then
+                    if [ "$FUNCNAME" = "ayakauigerrit" ]; then
                         echo "'$FUNCNAME $1' is deprecated."
                     fi
                     ;;
@@ -556,7 +556,7 @@ EOF
                 ${local_branch}:refs/for/$remote_branch || return 1
             ;;
         changes|for)
-            if [ "$FUNCNAME" = "flavorosgerrit" ]; then
+            if [ "$FUNCNAME" = "ayakauigerrit" ]; then
                 echo >&2 "'$FUNCNAME $command' is deprecated."
             fi
             ;;
@@ -655,7 +655,7 @@ EOF
     esac
 }
 
-function flavorosrebase() {
+function ayakauirebase() {
     local repo=$1
     local refs=$2
     local pwd="$(pwd)"
@@ -663,7 +663,7 @@ function flavorosrebase() {
 
     if [ -z $repo ] || [ -z $refs ]; then
         echo "FlavorOS Gerrit Rebase Usage: "
-        echo "      flavorosrebase <path to project> <patch IDs on Gerrit>"
+        echo "      ayakauirebase <path to project> <patch IDs on Gerrit>"
         echo "      The patch IDs appear on the Gerrit commands that are offered."
         echo "      They consist on a series of numbers and slashes, after the text"
         echo "      refs/changes. For example, the ID in the following command is 26/8126/2"
@@ -684,7 +684,7 @@ function flavorosrebase() {
     echo "Bringing it up to date..."
     repo sync .
     echo "Fetching change..."
-    git fetch "http://review.flavoros.net/p/$repo" "refs/changes/$refs" && git cherry-pick FETCH_HEAD
+    git fetch "http://review.ayakaui.net/p/$repo" "refs/changes/$refs" && git cherry-pick FETCH_HEAD
     if [ "$?" != "0" ]; then
         echo "Error cherry-picking. Not uploading!"
         return
@@ -768,7 +768,7 @@ function dopush()
         echo "Device Found."
     fi
 
-    if (adb shell getprop ro.flavor.device | grep -q "$FLAVOR_BUILD") || [ "$FORCE_PUSH" = "true" ];
+    if (adb shell getprop ro.ayaka.device | grep -q "$AYAKA_BUILD") || [ "$FORCE_PUSH" = "true" ];
     then
     # retrieve IP and PORT info if we're using a TCP connection
     TCPIPPORT=$(adb devices \
@@ -887,7 +887,7 @@ EOF
     rm -f $OUT/.log
     return 0
     else
-        echo "The connected device does not appear to be $FLAVOR_BUILD, run away!"
+        echo "The connected device does not appear to be $AYAKA_BUILD, run away!"
     fi
 }
 
