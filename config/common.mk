@@ -16,6 +16,9 @@ PRODUCT_PACKAGES += \
     custom_charger_animation \
     custom_charger_animation_vendor
 
+# Enable Material Design 3 Expressive
+PRODUCT_PRODUCT_PROPERTIES += is_expressive_design_enabled=true
+
 # Face Unlock
 TARGET_FACE_UNLOCK_SUPPORTED ?= $(TARGET_SUPPORTS_64_BIT_APPS)
 
