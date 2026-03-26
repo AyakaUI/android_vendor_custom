@@ -66,4 +66,6 @@ include vendor/custom/config/ota.mk
 # Version
 include vendor/custom/config/version.mk
 
+-include vendor/lineage-priv/keys/keys.mk
+
 -include vendor/certification/config.mk
