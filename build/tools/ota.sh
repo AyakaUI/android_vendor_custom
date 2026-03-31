@@ -14,7 +14,12 @@ ANDROID_VERSION=16.2
 BUILD_VERSION=BP4A
 OUT="out/target/product/$DEVICE"
 OTA_REPO="ota"
-OTA_JSON="${OTA_REPO}/${DEVICE}.json"
+# OTA_JSON="${OTA_REPO}/${DEVICE}.json"
+
+REMOTE_REPO='https://github.com/AyakaUI/official_devices.git'
+REPO_DIR='official_devices_repo'
+TARGET_PATH='API/updater'
+TARGET_FILE="${TARGET_PATH}/${DEVICE}.json"
 
 ZIP=$(ls "$OUT/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-"*.zip 2>/dev/null | sort -r | head -n 1)
 
@@ -35,9 +40,14 @@ DATETIME=$(date -d "$DATE_YMD $TIME_HMS" +%s)
 
 URL="https://drive.serverhive.in/drive/5g9gBfVjgvqJ-iKaY4O6q7MC/$DEVICE/$DATE_YMD/$FILENAME"
 
-mkdir -p "$OTA_REPO"
+echo "📂 Updating OTA for ${DEVICE} in external repo..."
 
-cat > "$OTA_JSON" <<EOF
+rm -rf "$REPO_DIR"
+git clone --depth 1 "$REMOTE_REPO" "$REPO_DIR"
+
+mkdir -p "${REPO_DIR}/${TARGET_PATH}"
+
+cat > "$REPO_DIR/${TARGET_FILE}" <<EOF
 {
   "response": [
     {
@@ -52,13 +62,17 @@ cat > "$OTA_JSON" <<EOF
 }
 EOF
 
-cd "$OTA_REPO"
-git add "${DEVICE}.json"
+cd "$REPO_DIR"
+
+git add "$TARGET_FILE"
 
 if git diff --cached --quiet; then
     echo "ℹ️ No changes to the OTA for $DEVICE"
     exit 0
 fi
 
-git commit -m "ota($DEVICE): update to $FILENAME"
+COMMIT_MSG="ota(${DEVICE}): update to ${FILENAME}"
+git commit -m "$COMMIT_MSG"
+
+echo '✅ Successfully pushed to AyakaUI/official_devices'
 git push
