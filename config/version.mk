@@ -8,7 +8,7 @@ CUSTOM_VERSION_PROP := sixteen
 # AyakaUI Platform Version
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.custom.build.date=$(CUSTOM_BUILD_DATE) \
-    ro.ayaka.device=$(AYAKA_BUILD) \
+    ro.ayakaui.device=$(AYAKA_BUILD) \
     ro.custom.version=Ayaka_$(CUSTOM_VERSION)
 
 # Versioning System
