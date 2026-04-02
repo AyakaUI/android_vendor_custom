@@ -20,6 +20,16 @@ REPO_DIR="official_devices_repo"
 TARGET_PATH="API/updater"
 TARGET_FILE="${TARGET_PATH}/${DEVICE}.json"
 
+if [ ! -f "$LAB_BIN" ]; then
+    echo "🔍 Lab binary not found localy."
+    echo "Downloading from GitHub..."
+    
+    wget -q https://github.com/whyakari/gitlab_upload/raw/refs/heads/main/lab -O "$LAB_BIN"
+    chmod +x "$LAB_BIN"
+
+    echo "✅ Lab downloaded and permission granted."
+fi
+
 echo "🚀 Starting upload to GitLab via 'lab'..."
 
 LAB_OUTPUT=$($LAB_BIN "$DEVICE")
