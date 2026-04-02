@@ -5,26 +5,39 @@ DEVICE="$1"
 ROM_TYPE="${2:-OSS}"
 
 if [ -z "$DEVICE" ]; then
-    echo "Uso: $0 <device> [rom_type]"
+    echo "Usage: $0 <device> [rom_type]"
     exit 1
 fi
 
-ROM_NAME=AyakaUI
-ANDROID_VERSION=16.2
-BUILD_VERSION=BP4A
-OUT="out/target/product/$DEVICE"
-OTA_REPO="ota"
-# OTA_JSON="${OTA_REPO}/${DEVICE}.json"
+ROM_NAME="AyakaUI"
+ANDROID_VERSION="16.2"
+BUILD_VERSION="BP4A"
+OUT_DIR="out/target/product/$DEVICE"
+LAB_BIN="./lab"
 
-REMOTE_REPO='https://github.com/AyakaUI/official_devices.git'
-REPO_DIR='official_devices_repo'
-TARGET_PATH='API/updater'
+REMOTE_REPO="https://github.com/AyakaUI/official_devices.git"
+REPO_DIR="official_devices_repo"
+TARGET_PATH="API/updater"
 TARGET_FILE="${TARGET_PATH}/${DEVICE}.json"
 
-ZIP=$(ls "$OUT/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-"*.zip 2>/dev/null | sort -r | head -n 1)
+echo "🚀 Starting upload to GitLab via 'lab'..."
+
+LAB_OUTPUT=$($LAB_BIN "$DEVICE")
+echo "$LAB_OUTPUT"
+
+URL=$(echo "$LAB_OUTPUT" | grep "OTA_URL_RESULT:" | cut -d ' ' -f 2)
+
+if [ -z "$URL" ]; then
+    echo "❌ Error: Could not retrieve the upload URL from 'lab'."
+    exit 1
+fi
+
+echo "🔍 Gathering build metadata..."
+
+ZIP=$(ls "$OUT_DIR/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-"*.zip 2>/dev/null | sort -r | head -n 1)
 
 if [ ! -f "$ZIP" ]; then
-    echo "❌ ZIP not found in $OUT"
+    echo "❌ Error: ZIP file not found in $OUT_DIR"
     exit 1
 fi
 
@@ -38,9 +51,7 @@ TIME_HMS="${DATE_RAW:9:2}:${DATE_RAW:11:2}:${DATE_RAW:13:2}"
 
 DATETIME=$(date -d "$DATE_YMD $TIME_HMS" +%s)
 
-URL="https://drive.serverhive.in/drive/5g9gBfVjgvqJ-iKaY4O6q7MC/$DEVICE/$DATE_YMD/$FILENAME"
-
-echo "📂 Updating OTA for ${DEVICE} in external repo..."
+echo "📂 Updating OTA JSON for ${DEVICE} in the official repo..."
 
 rm -rf "$REPO_DIR"
 git clone --depth 1 "$REMOTE_REPO" "$REPO_DIR"
@@ -63,16 +74,17 @@ cat > "$REPO_DIR/${TARGET_FILE}" <<EOF
 EOF
 
 cd "$REPO_DIR"
-
 git add "$TARGET_FILE"
 
 if git diff --cached --quiet; then
-    echo "ℹ️ No changes to the OTA for $DEVICE"
+    echo "ℹ️ No changes detected in the OTA for $DEVICE. Skipping push."
     exit 0
 fi
 
 COMMIT_MSG="ota(${DEVICE}): update to ${FILENAME}"
 git commit -m "$COMMIT_MSG"
 
-echo '✅ Successfully pushed to AyakaUI/official_devices'
+echo "📤 Pushing update to GitHub..."
 git push
+
+echo "✅ OTA Update completed successfully!"
