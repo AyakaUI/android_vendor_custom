@@ -13,6 +13,7 @@ ROM_NAME="AyakaUI"
 ANDROID_VERSION="16.2"
 BUILD_VERSION="BP4A"
 OUT_DIR="out/target/product/$DEVICE"
+BUILD_PROP="$OUT_DIR/system/build.prop"
 LAB_BIN="./lab"
 
 REMOTE_REPO="https://github.com/AyakaUI/official_devices.git"
@@ -55,11 +56,17 @@ FILENAME=$(basename "$ZIP")
 SIZE=$(stat -c%s "$ZIP")
 MD5=$(md5sum "$ZIP" | awk '{print $1}')
 
-DATE_RAW=$(echo "$FILENAME" | grep -oE '[0-9]{8}-[0-9]{6}')
-DATE_YMD="${DATE_RAW:0:4}-${DATE_RAW:4:2}-${DATE_RAW:6:2}"
-TIME_HMS="${DATE_RAW:9:2}:${DATE_RAW:11:2}:${DATE_RAW:13:2}"
-
-DATETIME=$(date -d "$DATE_YMD $TIME_HMS" +%s)
+if [ -f "$BUILD_PROP" ]; then
+    # Extracts the EXACT timestamp the Android build system used
+    DATETIME=$(grep "ro.build.date.utc=" "$BUILD_PROP" | cut -d'=' -f2)
+    echo "✅ Syncing with system datetime: $DATETIME"
+else
+    echo "⚠️ build.prop not found in $OUT_DIR! Falling back to filename date."
+    DATE_RAW=$(echo "$FILENAME" | grep -oE '[0-9]{8}-[0-9]{6}')
+    DATE_YMD="${DATE_RAW:0:4}-${DATE_RAW:4:2}-${DATE_RAW:6:2}"
+    TIME_HMS="${DATE_RAW:9:2}:${DATE_RAW:11:2}:${DATE_RAW:13:2}"
+    DATETIME=$(date -d "$DATE_YMD $TIME_HMS" +%s)
+fi
 
 echo "📂 Updating OTA JSON for ${DEVICE} in the official repo..."
 
