@@ -59,6 +59,10 @@ PRODUCT_PACKAGES += \
     LMOFreeform \
     LMOFreeformSidebar
 
+# OmniJaws
+PRODUCT_PACKAGES += \
+    OmniJaws
+
 PRODUCT_PACKAGES += \
     DroidSpaces
 
