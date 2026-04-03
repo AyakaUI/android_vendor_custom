@@ -63,6 +63,13 @@ PRODUCT_PACKAGES += \
     LMOFreeform \
     LMOFreeformSidebar
 
+# OmniJaws
+PRODUCT_PACKAGES += \
+    OmniJaws
+
+PRODUCT_PACKAGES += \
+    DroidSpaces
+
 # Overlay
 PRODUCT_PACKAGE_OVERLAYS += \
     vendor/custom/overlay/common
