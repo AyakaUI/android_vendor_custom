@@ -1,3 +1,5 @@
+AYAKA_MAINTAINER ?= unknown
+
 CUSTOM_BUILD_DATE := $(shell date -u +%Y%m%d-%H%M)
 
 CUSTOM_PLATFORM_VERSION := 16.2
@@ -8,6 +10,7 @@ CUSTOM_VERSION_PROP := sixteen
 # AyakaUI Platform Version
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.custom.build.date=$(CUSTOM_BUILD_DATE) \
+    ro.ayaka.maintainer=$(AYAKA_MAINTAINER) \
     ro.ayakaui.device=$(AYAKA_BUILD) \
     ro.custom.version=Ayaka_$(CUSTOM_VERSION)
 
