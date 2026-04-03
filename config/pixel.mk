@@ -1,5 +1,3 @@
-WITH_GMS := true
-
 # Pixel Clocks
 $(call inherit-product, vendor/pixel/clocks/products/clocks.mk)
 
