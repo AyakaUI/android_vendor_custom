@@ -1,6 +1,3 @@
-AYAKA_MAINTAINER ?= unknown
-IS_OFFICIAL ?= false # UNOFFICIAL
-
 CUSTOM_BUILD_DATE := $(shell date -u +%Y%m%d-%H%M)
 CUSTOM_PLATFORM_VERSION := 16.2
 
@@ -18,22 +15,22 @@ PRODUCT_PRODUCT_PROPERTIES += \
 AYAKA_BUILD_DATETIME := $(shell date +%s)
 AYAKA_BUILD_DATE := $(shell date -d @$(AYAKA_BUILD_DATETIME) +"%Y%m%d-%H%M%S")
 
-TARGET_PRODUCT_SHORT := $(subst ayaka_,,$(AYAKA_BUILD)) # ex: device fogos e.q
+TARGET_PRODUCT_SHORT := $(subst ayaka_,,$(AYAKA_BUILD))
 
 ifeq ($(WITH_GMS),true)
-    AYAKA_BUILD_TYPE := GAPPS
+    AYAKA_BUILD_TYPE ?= GAPPS
 else
-    AYAKA_BUILD_TYPE := VANILLA
+    AYAKA_BUILD_TYPE ?= VANILLA
 endif
 
 # Updater
 ifeq ($(IS_OFFICIAL),true)
-    BUILD_TYPE := OFFICIAL
+    BUILD_TYPE ?= OFFICIAL
     PRODUCT_PRODUCT_PROPERTIES += \
         net.ayakaui.build_type=official \
         net.ayakaui.version=$(CUSTOM_VERSION_PROP)
 else
-    BUILD_TYPE := UNOFFICIAL
+    BUILD_TYPE ?= UNOFFICIAL
 endif
 
 AYAKA_BUILD_VERSION := BP4A
