@@ -1,5 +1,5 @@
 AYAKA_MAINTAINER ?= unknown
-BUILD_TYPE ?= UNOFFICIAL
+IS_OFFICIAL ?= false # UNOFFICIAL
 
 CUSTOM_BUILD_DATE := $(shell date -u +%Y%m%d-%H%M)
 CUSTOM_PLATFORM_VERSION := 16.2
@@ -26,14 +26,18 @@ else
     AYAKA_BUILD_TYPE := VANILLA
 endif
 
+# Updater
+ifeq ($(IS_OFFICIAL),true)
+    BUILD_TYPE := OFFICIAL
+    PRODUCT_PRODUCT_PROPERTIES += \
+        net.ayakaui.build_type=official \
+        net.ayakaui.version=$(CUSTOM_VERSION_PROP)
+else
+    BUILD_TYPE := UNOFFICIAL.
+endif
+
 AYAKA_BUILD_VERSION := BP4A
 AYAKA_VERSION := $(AYAKA_BUILD_VERSION)-$(AYAKA_BUILD_TYPE)-$(TARGET_PRODUCT_SHORT)-$(BUILD_TYPE)-$(AYAKA_BUILD_DATE)
 
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
-  ro.ayaka.version=$(AYAKA_VERSION) \
-
-# Updater
-ifeq ($(IS_OFFICIAL),true)
-    PRODUCT_PRODUCT_PROPERTIES += \
-        net.ayakaui.build_type=ci \
-        net.ayakaui.version=$(CUSTOM_VERSION_PROP)
+  ro.ayaka.version=$(AYAKA_VERSION)
