@@ -33,7 +33,7 @@ ifeq ($(IS_OFFICIAL),true)
         net.ayakaui.build_type=official \
         net.ayakaui.version=$(CUSTOM_VERSION_PROP)
 else
-    BUILD_TYPE := UNOFFICIAL.
+    BUILD_TYPE := UNOFFICIAL
 endif
 
 AYAKA_BUILD_VERSION := BP4A
