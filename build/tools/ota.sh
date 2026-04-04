@@ -2,7 +2,8 @@
 set -e
 
 DEVICE="$1"
-ROM_TYPE="${2:-OSS}"
+
+ROM_TYPE="${2:-GAPPS}" 
 
 if [ -z "$DEVICE" ]; then
     echo "Usage: $0 <device> [rom_type]"
@@ -22,13 +23,10 @@ TARGET_PATH="API/updater"
 TARGET_FILE="${TARGET_PATH}/${DEVICE}.json"
 
 if [ ! -f "$LAB_BIN" ]; then
-    echo "🔍 Lab binary not found localy."
-    echo "Downloading from GitHub..."
-    
+    echo "🔍 Lab binary not found locally. Downloading..."
     wget -q https://github.com/whyakari/gitlab_upload/raw/refs/heads/main/lab -O "$LAB_BIN"
     chmod +x "$LAB_BIN"
-
-    echo "✅ Lab downloaded and permission granted."
+    echo "✅ Lab downloaded."
 fi
 
 echo "🚀 Starting upload to GitLab via 'lab'..."
@@ -45,10 +43,11 @@ fi
 
 echo "🔍 Gathering build metadata..."
 
-ZIP=$(ls "$OUT_DIR/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-"*.zip 2>/dev/null | sort -r | head -n 1)
+ZIP=$(ls "$OUT_DIR/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-OFFICIAL-"*.zip 2>/dev/null | sort -r | head -n 1)
 
 if [ ! -f "$ZIP" ]; then
     echo "❌ Error: ZIP file not found in $OUT_DIR"
+    echo "Expected pattern: ${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-OFFICIAL-*.zip"
     exit 1
 fi
 
@@ -57,18 +56,17 @@ SIZE=$(stat -c%s "$ZIP")
 MD5=$(md5sum "$ZIP" | awk '{print $1}')
 
 if [ -f "$BUILD_PROP" ]; then
-    # Extracts the EXACT timestamp the Android build system used
     DATETIME=$(grep "ro.build.date.utc=" "$BUILD_PROP" | cut -d'=' -f2)
     echo "✅ Syncing with system datetime: $DATETIME"
 else
-    echo "⚠️ build.prop not found in $OUT_DIR! Falling back to filename date."
+    echo "⚠️ build.prop not found! Falling back to filename date."
     DATE_RAW=$(echo "$FILENAME" | grep -oE '[0-9]{8}-[0-9]{6}')
     DATE_YMD="${DATE_RAW:0:4}-${DATE_RAW:4:2}-${DATE_RAW:6:2}"
     TIME_HMS="${DATE_RAW:9:2}:${DATE_RAW:11:2}:${DATE_RAW:13:2}"
     DATETIME=$(date -d "$DATE_YMD $TIME_HMS" +%s)
 fi
 
-echo "📂 Updating OTA JSON for ${DEVICE} in the official repo..."
+echo "📂 Updating OTA JSON for ${DEVICE}..."
 
 rm -rf "$REPO_DIR"
 git clone --depth 1 "$REMOTE_REPO" "$REPO_DIR"
@@ -94,12 +92,11 @@ cd "$REPO_DIR"
 git add "$TARGET_FILE"
 
 if git diff --cached --quiet; then
-    echo "ℹ️ No changes detected in the OTA for $DEVICE. Skipping push."
+    echo "ℹ️ No changes detected. Skipping push."
     exit 0
 fi
 
-COMMIT_MSG="ota(${DEVICE}): update to ${FILENAME}"
-git commit -m "$COMMIT_MSG"
+git commit -m "ota(${DEVICE}): update to ${FILENAME}"
 
 echo "📤 Pushing update to GitHub..."
 git push
