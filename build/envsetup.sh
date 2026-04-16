@@ -904,7 +904,7 @@ function repopick() {
 }
 
 function yay() {
-    bash vendor/custom/monitor.sh "$1"
+    bash vendor/custom/build/tools/monitor.sh "$1"
 }
 
 function sort-blobs-list() {
