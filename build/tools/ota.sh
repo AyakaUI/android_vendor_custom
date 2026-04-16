@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
 
-DEVICE="$1"
+ROM_ROOT=$(cd "$(dirname "$0")/../../../../" && pwd)
+cd "$ROM_ROOT"
 
+DEVICE="$1"
 ROM_TYPE="${2:-GAPPS}" 
 
 if [ -z "$DEVICE" ]; then
@@ -15,6 +17,7 @@ ANDROID_VERSION="16.2"
 BUILD_VERSION="BP4A"
 OUT_DIR="out/target/product/$DEVICE"
 BUILD_PROP="$OUT_DIR/system/build.prop"
+
 LAB_BIN="./lab"
 
 REMOTE_REPO="https://github.com/AyakaUI/official_devices.git"
@@ -23,10 +26,12 @@ TARGET_PATH="API/updater"
 TARGET_FILE="${TARGET_PATH}/${DEVICE}.json"
 
 if [ ! -f "$LAB_BIN" ]; then
-    echo "🔍 Lab binary not found locally. Downloading..."
-    wget -q https://github.com/whyakari/gitlab_upload/raw/refs/heads/main/lab -O "$LAB_BIN"
+    echo "🔍 Lab binary not found in ROM root ($ROM_ROOT). Downloading..."
+    wget -q https://github.com/whyakari/gitlab_upload/raw/refs/heads/main/lab -O "$LAB_BIN" || \
+    curl -sL https://github.com/whyakari/gitlab_upload/raw/refs/heads/main/lab -o "$LAB_BIN"
+    
     chmod +x "$LAB_BIN"
-    echo "✅ Lab downloaded."
+    echo "✅ Lab downloaded to $ROM_ROOT"
 fi
 
 echo "🚀 Starting upload to GitLab via 'lab'..."
@@ -47,7 +52,6 @@ ZIP=$(ls "$OUT_DIR/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-OFFICIAL-"
 
 if [ ! -f "$ZIP" ]; then
     echo "❌ Error: ZIP file not found in $OUT_DIR"
-    echo "Expected pattern: ${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-OFFICIAL-*.zip"
     exit 1
 fi
 
