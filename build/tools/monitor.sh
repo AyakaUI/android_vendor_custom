@@ -4,8 +4,9 @@ export TOKEN
 export CHAT_ID
 
 VERSION="sixteen-qpr2"
-DEVICES_DIR="devices"
-
+cd "$(dirname "$0")/../../"
+ROOT_DIR=$(pwd)
+DEVICES_DIR="$ROOT_DIR/devices"
 DEVICE=$1
 
 if [ -z "$DEVICE" ]; then
