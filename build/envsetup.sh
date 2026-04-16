@@ -903,6 +903,10 @@ function repopick() {
     $T/vendor/custom/build/tools/repopick.py $@
 }
 
+function yay() {
+    bash vendor/custom/monitor.sh "$1"
+}
+
 function sort-blobs-list() {
     T=$(gettop)
     $T/tools/extract-utils/sort-blobs-list.py $@
