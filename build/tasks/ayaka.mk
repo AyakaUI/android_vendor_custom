@@ -24,8 +24,6 @@ $(AYAKA_TARGET_PACKAGE): $(INTERNAL_OTA_PACKAGE_TARGET)
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(AYAKA_TARGET_PACKAGE)
 	$(hide) $(MD5) $(AYAKA_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(AYAKA_TARGET_PACKAGE).md5sum
 	@echo "Package Complete: $(AYAKA_TARGET_PACKAGE)" >&2
-	@echo "Generating update JSON for $(TARGET_DEVICE)..."
-	$(hide) ./vendor/custom/build/tools/ota.sh $(TARGET_DEVICE)
 
 .PHONY: ayaka
 ayaka: $(AYAKA_TARGET_PACKAGE) $(DEFAULT_GOAL)
