@@ -29,7 +29,7 @@ echo "Starting build process..."
 
 START_TIME=$(date +%s)
 
-source vendor/custom/build/envsetup.sh
+source build/envsetup.sh
 breakfast "$DEVICE"
 m ayaka 
 
