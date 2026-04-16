@@ -41,7 +41,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Generating JSON and uploading the OTA..."
-./vendor/custom/build/tools/ota.sh "$DEVICE"
+./build/tools/ota.sh "$DEVICE"
 
 END_TIME=$(date +%s)
 DIFF=$((END_TIME - START_TIME))
