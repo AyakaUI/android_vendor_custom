@@ -29,8 +29,8 @@ echo "Starting build process..."
 
 START_TIME=$(date +%s)
 
-source build/envsetup.sh
-breakfast "$DEVICE"
+#source build/envsetup.sh
+#breakfast "$DEVICE"
 m ayaka 
 
 if [ $? -ne 0 ]; then
