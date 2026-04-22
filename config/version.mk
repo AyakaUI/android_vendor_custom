@@ -36,5 +36,21 @@ endif
 AYAKA_BUILD_VERSION := BP4A
 AYAKA_VERSION := $(AYAKA_BUILD_VERSION)-$(AYAKA_BUILD_TYPE)-$(TARGET_PRODUCT_SHORT)-$(BUILD_TYPE)-$(AYAKA_BUILD_DATE)
 
-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
-  ro.ayaka.version=$(AYAKA_VERSION)
+ifeq ($(TARGET_BUILD_VARIANT),userdebug)
+    MY_BUILD_TAGS ?= release-keys
+else
+    MY_BUILD_TAGS ?= test-keys
+endif
+
+
+# 1. Define as tags
+ifeq ($(TARGET_BUILD_VARIANT),user)
+    MY_BUILD_TAGS := release-keys
+else
+    MY_BUILD_TAGS := test-keys
+endif
+
+BUILD_DISPLAY_ID := $(MY_BUILD_TAGS)
+
+PRODUCT_PRODUCT_PROPERTIES += \
+    ro.ayaka.version=$(AYAKA_VERSION)
