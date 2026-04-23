@@ -7,36 +7,22 @@ set -e
 ROM_ROOT=$(cd "$(dirname "$0")/../../../../" && pwd)
 cd "$ROM_ROOT"
 
-# Device Detection: 1st argument or $TARGET_PRODUCT
-# Cleans prefix (e.g., ayaka_fogos -> fogos)
+# Arguments (Device and Build Type)
 RAW_DEVICE="${1:-$TARGET_PRODUCT}"
-if [ -z "$RAW_DEVICE" ]; then
-    echo "❌ Error: No device detected. Please run 'lunch' or pass device as an argument."
-    exit 1
-fi
-
 DEVICE=${RAW_DEVICE#*_}
 ROM_TYPE="${2:-GAPPS}"
 
-# ROM Variables
 ROM_NAME="AyakaUI"
-ANDROID_VERSION="16.2"
 BUILD_VERSION="BP4A"
 OUT_DIR="out/target/product/$DEVICE"
-BUILD_PROP="$OUT_DIR/system/build.prop"
-LAB_BIN="$ROM_ROOT/vendor/custom/build/soong/bin/lab"
 
-# OTA Repository
-REMOTE_REPO="https://github.com/AyakaUI/official_devices.git"
-REPO_DIR="official_devices_repo"
-TARGET_PATH="API/updater"
-TARGET_FILE="${TARGET_PATH}/${DEVICE}.json"
+# 1. Locate the generated ZIP file
+# We try to find OFFICIAL first; if not found, we look for any build zip.
+ZIP=$(ls "$OUT_DIR/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-OFFICIAL-"*.zip 2>/dev/null | sort -r | head -n 1)
 
-# ========================================================
-# ZIP File Localization
-# ========================================================
-# Find the latest ZIP based on the naming pattern
-ZIP=$(ls "$OUT_DIR/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-"*.zip 2>/dev/null | sort -r | head -n 1)
+if [ -z "$ZIP" ]; then
+    ZIP=$(ls "$OUT_DIR/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-"*.zip 2>/dev/null | sort -r | head -n 1)
+fi
 
 if [ ! -f "$ZIP" ]; then
     echo "❌ Error: ZIP file not found in $OUT_DIR"
@@ -46,91 +32,91 @@ fi
 FILENAME=$(basename "$ZIP")
 
 # ========================================================
-# Strict Condition (OFFICIAL or FORCE_JSON=1)
+# Execution Logic (OFFICIAL vs UNOFFICIAL)
 # ========================================================
-if [[ "$FILENAME" == *"OFFICIAL"* ]] || [[ "$FORCE_JSON" == "1" ]]; then
+
+# Regex Explanation: 
+# (^|-)OFFICIAL(-|\.) ensures "OFFICIAL" is its own word, 
+# preventing "UNOFFICIAL" from triggering this block.
+if [[ "$FILENAME" =~ (^|-)OFFICIAL(-|\.) ]] || [[ "$FORCE_JSON" == "1" ]]; then
     
     echo "🚀 Starting process for: $FILENAME"
 
     # 1. Environment Safety Check
     if [ -z "$GITLAB_TOKEN" ] || [ -z "$PROJECTID_GITLAB" ]; then
-        echo "❌ Error: GITLAB_TOKEN or PROJECTID_GITLAB is not defined in the environment."
-        echo "Exiting to avoid 'lab' binary failure."
+        echo "❌ Error: GITLAB_TOKEN or PROJECTID_GITLAB is not defined."
+        echo "Official builds require these variables for the upload process."
         exit 1
     fi
 
-    # 2. Check if lab binary exists
-    if [ ! -f "$LAB_BIN" ]; then
-        echo "❌ Error: Lab binary not found at $LAB_BIN"
-        exit 1
-    fi
-
-    echo "📤 Uploading to GitLab via 'lab'..."
+    # 2. Upload to GitLab via 'lab' binary
+    LAB_BIN="$ROM_ROOT/vendor/custom/build/soong/bin/lab"
+    echo "📤 Uploading to GitLab..."
     LAB_OUTPUT=$($LAB_BIN "$DEVICE")
+    
+    # Extract the URL from lab output
     URL=$(echo "$LAB_OUTPUT" | grep "OTA_URL_RESULT:" | cut -d ' ' -f 2)
 
     if [ -z "$URL" ]; then
-        echo "❌ Error: Could not retrieve the upload URL from lab output."
+        echo "❌ Error: Could not retrieve the upload URL from 'lab'."
         exit 1
     fi
 
-    # 3. Metadata Extraction
-    echo "📊 Gathering metadata..."
-    SIZE=$(stat -c%s "$ZIP")
-    MD5=$(md5sum "$ZIP" | awk '{print $1}')
-
-    if [ -f "$BUILD_PROP" ]; then
-        DATETIME=$(grep "ro.build.date.utc=" "$BUILD_PROP" | cut -d'=' -f2)
-        echo "✅ Timestamp synced from build.prop: $DATETIME"
-    else
-        echo "⚠️ build.prop not found! Falling back to filename date."
-        DATE_RAW=$(echo "$FILENAME" | grep -oE '[0-9]{8}-[0-9]{6}')
-        DATE_YMD="${DATE_RAW:0:4}-${DATE_RAW:4:2}-${DATE_RAW:6:2}"
-        TIME_HMS="${DATE_RAW:9:2}:${DATE_RAW:11:2}:${DATE_RAW:13:2}"
-        DATETIME=$(date -d "$DATE_YMD $TIME_HMS" +%s)
+    # 3. Metadata Collection for JSON
+    # Try to get timestamp from build.prop, fallback to current time
+    DATETIME=$(grep "ro.build.date.utc=" "$OUT_DIR/system/build.prop" | cut -d'=' -f2 || true)
+    if [ -z "$DATETIME" ]; then
+        DATETIME=$(date +%s)
     fi
 
-    # ========================================================
-    # OTA JSON Repository Update
-    # ========================================================
-    echo "📂 Updating OTA repository..."
-    rm -rf "$REPO_DIR"
-    git clone --depth 1 "$REMOTE_REPO" "$REPO_DIR"
+    MD5SUM=$(cat "${ZIP}.md5sum" | cut -d' ' -f1)
+    SIZE=$(stat -c%s "$ZIP")
 
-    mkdir -p "${REPO_DIR}/${TARGET_PATH}"
+    # 4. Clone and Update OTA Repository (GitHub)
+    OTA_REPO_DIR="/tmp/ayaka_ota"
+    rm -rf "$OTA_REPO_DIR"
+    
+    echo "git cloning ota repo..."
+    git clone https://github.com/AyakaUI-Devices/official_devices.git "$OTA_REPO_DIR" --depth 1
+    
+    JSON_FILE="$OTA_REPO_DIR/${DEVICE}.json"
 
-    cat > "$REPO_DIR/${TARGET_FILE}" <<EOF
+    # Generate JSON file
+    cat <<EOF > "$JSON_FILE"
 {
   "response": [
     {
       "datetime": $DATETIME,
       "filename": "$FILENAME",
-      "id": "$MD5",
+      "id": "$MD5SUM",
       "size": $SIZE,
       "url": "$URL",
-      "version": "$ANDROID_VERSION"
+      "version": "$BUILD_VERSION"
     }
   ]
 }
 EOF
 
-    cd "$REPO_DIR"
-    git add "$TARGET_FILE"
+    # 5. Push changes
+    cd "$OTA_REPO_DIR"
+    git add "${DEVICE}.json"
+    git commit -m "OTA: Update $DEVICE - $(date +'%Y%m%d')"
+    git push origin sixteen-qpr2
+    
+    echo "✅ OTA Update completed successfully!"
 
-    if git diff --cached --quiet; then
-        echo "ℹ️ No changes detected in JSON. Skipping push."
-    else
-        git commit -m "ota(${DEVICE}): update to ${FILENAME}"
-        echo "📤 Pushing to GitHub..."
-        git push
-        echo "✅ OTA Update completed successfully!"
-    fi
-
-else
+elif [[ "$FILENAME" == *"UNOFFICIAL"* ]]; then
+    # ========================================================
+    # UNOFFICIAL Case: Skip upload but exit with SUCCESS (0)
+    # ========================================================
     echo "------------------------------------------------------------"
     echo "ℹ️  SKIP: Build identified as UNOFFICIAL."
-    echo "ℹ️  OTA JSON will not be updated."
+    echo "ℹ️  OTA JSON update is not required for this build type."
     echo "ℹ️  Filename: $FILENAME"
     echo "------------------------------------------------------------"
+    exit 0
+else
+    # Fallback for unexpected naming conventions
+    echo "⚠️  Warning: Unknown build type. Exiting safely."
     exit 0
 fi
