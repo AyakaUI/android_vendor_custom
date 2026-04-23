@@ -35,7 +35,7 @@ TARGET_FILE="${TARGET_PATH}/${DEVICE}.json"
 # ========================================================
 # ZIP File Localization
 # ========================================================
-# Find the ZIP based on the naming pattern
+# Find the latest ZIP based on the naming pattern
 ZIP=$(ls "$OUT_DIR/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-"*.zip 2>/dev/null | sort -r | head -n 1)
 
 if [ ! -f "$ZIP" ]; then
@@ -46,18 +46,23 @@ fi
 FILENAME=$(basename "$ZIP")
 
 # ========================================================
-# Upload Condition (OFFICIAL or FORCE_JSON=1)
+# Strict Condition (OFFICIAL or FORCE_JSON=1)
 # ========================================================
-if [[ "$FILENAME" =~ "OFFICIAL" ]] || [[ "$FORCE_JSON" == "1" ]]; then
+if [[ "$FILENAME" == *"OFFICIAL"* ]] || [[ "$FORCE_JSON" == "1" ]]; then
     
     echo "🚀 Starting process for: $FILENAME"
 
-    # Ensure 'lab' binary exists
+    # 1. Environment Safety Check
+    if [ -z "$GITLAB_TOKEN" ] || [ -z "$PROJECTID_GITLAB" ]; then
+        echo "❌ Error: GITLAB_TOKEN or PROJECTID_GITLAB is not defined in the environment."
+        echo "Exiting to avoid 'lab' binary failure."
+        exit 1
+    fi
+
+    # 2. Check if lab binary exists
     if [ ! -f "$LAB_BIN" ]; then
-        echo "🔍 Lab binary not found. Downloading..."
-        wget -q https://github.com/whyakari/gitlab_upload/raw/refs/heads/main/lab -O "$LAB_BIN" || \
-        curl -sL https://github.com/whyakari/gitlab_upload/raw/refs/heads/main/lab -o "$LAB_BIN"
-        chmod +x "$LAB_BIN"
+        echo "❌ Error: Lab binary not found at $LAB_BIN"
+        exit 1
     fi
 
     echo "📤 Uploading to GitLab via 'lab'..."
@@ -65,11 +70,11 @@ if [[ "$FILENAME" =~ "OFFICIAL" ]] || [[ "$FORCE_JSON" == "1" ]]; then
     URL=$(echo "$LAB_OUTPUT" | grep "OTA_URL_RESULT:" | cut -d ' ' -f 2)
 
     if [ -z "$URL" ]; then
-        echo "❌ Error: Could not retrieve the upload URL."
+        echo "❌ Error: Could not retrieve the upload URL from lab output."
         exit 1
     fi
 
-    # Metadata Extraction
+    # 3. Metadata Extraction
     echo "📊 Gathering metadata..."
     SIZE=$(stat -c%s "$ZIP")
     MD5=$(md5sum "$ZIP" | awk '{print $1}')
@@ -125,7 +130,7 @@ else
     echo "------------------------------------------------------------"
     echo "ℹ️  SKIP: Build identified as UNOFFICIAL."
     echo "ℹ️  OTA JSON will not be updated."
-    echo "ℹ️  To force this process, use: FORCE_JSON=1 $0"
+    echo "ℹ️  Filename: $FILENAME"
     echo "------------------------------------------------------------"
     exit 0
 fi
