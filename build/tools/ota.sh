@@ -24,7 +24,7 @@ ANDROID_VERSION="16.2"
 BUILD_VERSION="BP4A"
 OUT_DIR="out/target/product/$DEVICE"
 BUILD_PROP="$OUT_DIR/system/build.prop"
-LAB_BIN="./lab"
+LAB_BIN="$ROM_ROOT/vendor/custom/build/soong/bin/lab"
 
 # OTA Repository
 REMOTE_REPO="https://github.com/AyakaUI/official_devices.git"
