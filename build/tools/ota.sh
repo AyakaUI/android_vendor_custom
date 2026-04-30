@@ -17,10 +17,10 @@ BUILD_VERSION="BP4A"
 OUT_DIR="out/target/product/$DEVICE"
 
 # 1. Locate the generated ZIP file
-ZIP=$(ls ${OUT_DIR}/${ROM_NAME}*.zip 2>/dev/null | sort | tail -n 1)
+ZIP=$(ls -t ${OUT_DIR}/${ROM_NAME}*OFFICIAL*.zip 2>/dev/null | head -n 1)
 
 if [ -z "$ZIP" ]; then
-    ZIP=$(ls "$OUT_DIR/${ROM_NAME}_${BUILD_VERSION}-${ROM_TYPE}-${DEVICE}-"*.zip 2>/dev/null | sort -r | head -n 1)
+    ZIP=$(ls -t "$OUT_DIR/${ROM_NAME}"*.zip 2>/dev/null | head -n 1)
 fi
 
 if [ ! -f "$ZIP" ]; then
