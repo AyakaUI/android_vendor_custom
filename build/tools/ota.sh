@@ -98,7 +98,8 @@ EOF
 
     # 5. Push changes
     cd "$OTA_REPO_DIR"
-    git add "${DEVICE}.json"
+    mv "${DEVICE}.json" API/updater
+    git add "API/updater/${DEVICE}.json"
     git commit -m "OTA: Update $DEVICE - $(date +'%Y%m%d')"
     git push origin sixteen
     
