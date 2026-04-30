@@ -76,7 +76,7 @@ if [[ "$FILENAME" =~ (^|-)OFFICIAL(-|\.) ]] || [[ "$FORCE_JSON" == "1" ]]; then
     rm -rf "$OTA_REPO_DIR"
     
     echo "git cloning ota repo..."
-    git clone https://github.com/AyakaUI-Devices/official_devices.git "$OTA_REPO_DIR" --depth 1
+    git clone https://github.com/AyakaUI/official_devices.git "$OTA_REPO_DIR" --depth 1
     
     JSON_FILE="$OTA_REPO_DIR/${DEVICE}.json"
 
@@ -100,7 +100,7 @@ EOF
     cd "$OTA_REPO_DIR"
     git add "${DEVICE}.json"
     git commit -m "OTA: Update $DEVICE - $(date +'%Y%m%d')"
-    git push origin sixteen-qpr2
+    git push origin sixteen
     
     echo "✅ OTA Update completed successfully!"
 
