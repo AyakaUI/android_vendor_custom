@@ -22,27 +22,20 @@ ROM_NAME="AyakaUI"
 BUILD_VERSION="BP4A"
 OUT_DIR="out/target/product/$DEVICE"
 
-# 1. Locate the generated ZIP file
-ZIP=$(ls -t ${OUT_DIR}/${ROM_NAME}*OFFICIAL*.zip 2>/dev/null | head -n 1)
+ZIP=$(ls ${OUT_DIR}/${ROM_NAME}*OFFICIAL*.zip 2>/dev/null | sort -r | head -n 1)
 
 if [ -z "$ZIP" ]; then
-    ZIP=$(ls -t "$OUT_DIR/${ROM_NAME}"*.zip 2>/dev/null | head -n 1)
+    ZIP=$(ls "${OUT_DIR}/${ROM_NAME}"*.zip 2>/dev/null | sort -r | head -n 1)
 fi
 
-if [ ! -f "$ZIP" ]; then
+if [ -z "$ZIP" ] || [ ! -f "$ZIP" ]; then
     echo "❌ Error: ZIP file not found in $OUT_DIR"
     exit 1
 fi
 
+echo "🚀 Target file: $(basename "$ZIP")"
 FILENAME=$(basename "$ZIP")
 
-# ========================================================
-# Execution Logic (OFFICIAL vs UNOFFICIAL)
-# ========================================================
-
-# Regex Explanation: 
-# (^|-)OFFICIAL(-|\.) ensures "OFFICIAL" is its own word, 
-# preventing "UNOFFICIAL" from triggering this block.
 if [[ "$FILENAME" =~ (^|-)OFFICIAL(-|\.) ]] || [[ "$FORCE_JSON" == "1" ]]; then
     
     echo "🚀 Starting process for: $FILENAME"
