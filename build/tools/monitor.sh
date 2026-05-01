@@ -1,7 +1,8 @@
 #!/bin/bash
 
-export TOKEN
-export CHAT_ID
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
 
 VERSION="sixteen-qpr2"
 cd "$(dirname "$0")/../../"

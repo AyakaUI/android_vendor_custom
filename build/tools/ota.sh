@@ -7,6 +7,12 @@ set -e
 ROM_ROOT=$(cd "$(dirname "$0")/../../../../" && pwd)
 cd "$ROM_ROOT"
 
+if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+fi
+
 # Arguments (Device and Build Type)
 RAW_DEVICE="${1:-$TARGET_PRODUCT}"
 DEVICE=${RAW_DEVICE#*_}
