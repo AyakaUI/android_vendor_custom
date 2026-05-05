@@ -62,6 +62,11 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGE_OVERLAYS += \
     vendor/custom/overlay/common
 
+ifeq ($(TARGET_IS_TABLET),true)
+PRODUCT_PACKAGE_OVERLAYS += \
+    vendor/custom/overlay/tablet
+endif
+
 PRODUCT_PACKAGES += \
     FrameworkOverlayCustom \
     SettingsOverlayCustom
