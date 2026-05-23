@@ -65,6 +65,7 @@ PRODUCT_PACKAGES += \
 # Overlay
 PRODUCT_PACKAGES += \
     FrameworkOverlayCustom \
+    GoogleDialerOverlayCustom \
     SettingsOverlayCustom
 
 # TouchGesture
