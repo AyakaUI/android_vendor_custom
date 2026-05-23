@@ -69,6 +69,7 @@ endif
 
 PRODUCT_PACKAGES += \
     FrameworkOverlayCustom \
+    GoogleDialerOverlayCustom \
     SettingsOverlayCustom
 
 # TouchGesture
