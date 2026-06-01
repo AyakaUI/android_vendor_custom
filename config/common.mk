@@ -59,6 +59,9 @@ PRODUCT_PACKAGES += \
     LMOFreeform \
     LMOFreeformSidebar
 
+PRODUCT_PACKAGES += \
+    DroidSpaces
+
 # Overlay
 PRODUCT_PACKAGES += \
     FrameworkOverlayCustom \
