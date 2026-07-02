@@ -90,6 +90,11 @@ PRODUCT_PACKAGES += \
     ColumbusService
 endif
 
+# Themes
+PRODUCT_PACKAGES += \
+    ThemePicker \
+    ThemesStub
+
 # TouchGesture
 PRODUCT_PACKAGES += \
     TouchGestures
