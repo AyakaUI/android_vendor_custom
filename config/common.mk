@@ -68,6 +68,11 @@ PRODUCT_PACKAGES += \
     GoogleDialerOverlayCustom \
     SettingsOverlayCustom
 
+# Themes
+PRODUCT_PACKAGES += \
+    ThemePicker \
+    ThemesStub
+
 # TouchGesture
 PRODUCT_PACKAGES += \
     TouchGestures
