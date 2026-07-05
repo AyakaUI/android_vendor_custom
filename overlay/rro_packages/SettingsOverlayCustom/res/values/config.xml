@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: PixelOS
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Whether or not device header widget tile should display in device info page -->
+    <bool name="config_show_device_header_in_device_info">false</bool>
+</resources>
