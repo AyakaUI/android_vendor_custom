@@ -9,6 +9,3 @@ $(call inherit-product, vendor/pixel/gsans/products/gsans.mk)
 
 # Pixel ThemePicker
 $(call inherit-product, vendor/pixel/sounds/products/sounds.mk)
-
-# Pixel ThemePicker
-$(call inherit-product, vendor/pixel/themepicker/products/themepicker.mk)
