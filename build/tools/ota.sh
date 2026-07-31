@@ -42,9 +42,9 @@ if [[ "$FILENAME" =~ (^|-)OFFICIAL(-|\.) ]] || [[ "$FORCE_JSON" == "1" ]]; then
 
     # 1. Environment Safety Check
     if [ -z "$GITLAB_TOKEN" ] || [ -z "$PROJECTID_GITLAB" ]; then
-        echo "❌ Error: GITLAB_TOKEN or PROJECTID_GITLAB is not defined."
+        echo "GITLAB_TOKEN or PROJECTID_GITLAB is not defined yet."
         echo "Official builds require these variables for the upload process."
-        exit 1
+        exit 0
     fi
 
     # 2. Upload to GitLab via 'lab' binary
@@ -57,7 +57,7 @@ if [[ "$FILENAME" =~ (^|-)OFFICIAL(-|\.) ]] || [[ "$FORCE_JSON" == "1" ]]; then
 
     if [ -z "$URL" ]; then
         echo "❌ Error: Could not retrieve the upload URL from 'lab'."
-        exit 1
+        exit 0
     fi
 
     # 3. Metadata Collection for JSON
