@@ -9,12 +9,12 @@ function check_product()
         echo "Couldn't locate the top of the tree. Try setting TOP." >&2
         return
     fi
-    if (echo -n $1 | grep -q -e "^custom_") ; then
-        CUSTOM_BUILD=$(echo -n $1 | sed -e 's/^custom_//g')
+    if (echo -n $1 | grep -q -e "^ayaka_") ; then
+        AYAKA_BUILD=$(echo -n $1 | sed -e 's/^ayaka_//g')
     else
-        CUSTOM_BUILD=
+        AYAKA_BUILD=
     fi
-    export CUSTOM_BUILD
+    export AYAKA_BUILD
 
         TARGET_PRODUCT=$1 \
         TARGET_RELEASE=$2 \
@@ -29,7 +29,7 @@ function brunch()
 {
     breakfast $*
     if [ $? -eq 0 ]; then
-        mka pixelos
+        mka ayaka
     else
         echo "No such item in brunch menu. Try 'breakfast'"
         return 1
@@ -51,12 +51,12 @@ function breakfast()
             # A buildtype was specified, assume a full device name
             lunch $target
         else
-            # This is probably just the PixelOS model name
+            # This is probably just the AyakaUI model name
             if [ -z "$variant" ]; then
                 variant="userdebug"
             fi
 
-            lunch custom_$target-$aosp_target_release-$variant
+            lunch ayaka_$target-$aosp_target_release-$variant
         fi
     fi
     return $?
@@ -67,7 +67,7 @@ alias bib=breakfast
 function eat()
 {
     if [ "$OUT" ] ; then
-        ZIPPATH=`ls -tr "$OUT"/PixelOS_*.zip | tail -1`
+        ZIPPATH=`ls -tr "$OUT"/AyakaUI_*.zip | tail -1`
         if [ ! -f $ZIPPATH ] ; then
             echo "Nothing to eat"
             return 1
@@ -75,13 +75,13 @@ function eat()
         echo "Waiting for device..."
         adb wait-for-device-recovery
         echo "Found device"
-        if (adb shell getprop ro.custom.device | grep -q "$CUSTOM_BUILD"); then
+        if (adb shell getprop ro.ayaka.device | grep -q "$AYAKA_BUILD"); then
             echo "Rebooting to sideload for install"
             adb reboot sideload-auto-reboot
             adb wait-for-sideload
             adb sideload $ZIPPATH
         else
-            echo "The connected device does not appear to be $CUSTOM_BUILD, run away!"
+            echo "The connected device does not appear to be $AYAKA_BUILD, run away!"
         fi
         return $?
     else
@@ -205,43 +205,43 @@ function dddclient()
    fi
 }
 
-function pixelosremote()
+function ayakaremote()
 {
     if ! git rev-parse --git-dir &> /dev/null
     then
         echo ".git directory not found. Please run this from the root directory of the Android repository you wish to set up."
         return 1
     fi
-    git remote rm pixelos 2> /dev/null
+    git remote rm ayaka 2> /dev/null
     local REMOTE=$(git config --get remote.github.projectname)
-    local PIXELOS="true"
+    local AYAKA="true"
     if [ -z "$REMOTE" ]
     then
         REMOTE=$(git config --get remote.aosp.projectname)
-        PIXELOS="false"
+        AYAKA="false"
     fi
     if [ -z "$REMOTE" ]
     then
         REMOTE=$(git config --get remote.clo.projectname)
-        PIXELOS="false"
+        AYAKA="false"
     fi
 
-    if [ $PIXELOS = "false" ]
+    if [ $AYAKA = "false" ]
     then
         local PROJECT=$(echo $REMOTE | sed -e "s#platform/#android/#g; s#/#_#g")
-        local PFX="PixelOS/"
+        local PFX="AyakaUI/"
     else
         local PROJECT=$REMOTE
     fi
 
-    local PIXELOS_USER=$(git config --get review.review.pixelos.net.username)
-    if [ -z "$PIXELOS_USER" ]
+    local AYAKA_USER=$(git config --get review.review.ayaka.net.username)
+    if [ -z "$AYAKA_USER" ]
     then
-        git remote add pixelos ssh://review.pixelos.net:29418/$PFX$PROJECT
+        git remote add ayaka ssh://review.ayaka.net:29418/$PFX$PROJECT
     else
-        git remote add pixelos ssh://$PIXELOS_USER@review.pixelos.net:29418/$PFX$PROJECT
+        git remote add ayaka ssh://$AYAKA_USER@review.ayaka.net:29418/$PFX$PROJECT
     fi
-    echo "Remote 'pixelos' created"
+    echo "Remote 'ayaka' created"
 }
 
 function aospremote()
@@ -323,7 +323,7 @@ function githubremote()
 
     local PROJECT=$(echo $REMOTE | sed -e "s#platform/#android/#g; s#/#_#g")
 
-    git remote add github https://github.com/PixelOS-AOSP/$PROJECT
+    git remote add github https://github.com/AyakaUI/$PROJECT
     echo "Remote 'github' created"
 }
 
@@ -368,14 +368,14 @@ function installboot()
     adb wait-for-device-recovery
     adb root
     adb wait-for-device-recovery
-    if (adb shell getprop ro.custom.device | grep -q "$CUSTOM_BUILD");
+    if (adb shell getprop ro.ayaka.device | grep -q "$AYAKA_BUILD");
     then
         adb push $OUT/boot.img /cache/
         adb shell dd if=/cache/boot.img of=$PARTITION
         adb shell rm -rf /cache/boot.img
         echo "Installation complete."
     else
-        echo "The connected device does not appear to be $CUSTOM_BUILD, run away!"
+        echo "The connected device does not appear to be $AYAKA_BUILD, run away!"
     fi
 }
 
@@ -406,18 +406,18 @@ function installrecovery()
     adb wait-for-device-recovery
     adb root
     adb wait-for-device-recovery
-    if (adb shell getprop ro.custom.device | grep -q "$CUSTOM_BUILD");
+    if (adb shell getprop ro.ayaka.device | grep -q "$AYAKA_BUILD");
     then
         adb push $OUT/recovery.img /cache/
         adb shell dd if=/cache/recovery.img of=$PARTITION
         adb shell rm -rf /cache/recovery.img
         echo "Installation complete."
     else
-        echo "The connected device does not appear to be $CUSTOM_BUILD, run away!"
+        echo "The connected device does not appear to be $AYAKA_BUILD, run away!"
     fi
 }
 
-function pixelosgerrit() {
+function ayakagerrit() {
     if [ "$(basename $SHELL)" = "zsh" ]; then
         # zsh does not define FUNCNAME, derive from funcstack
         local FUNCNAME=$funcstack[1]
@@ -427,7 +427,7 @@ function pixelosgerrit() {
         $FUNCNAME help
         return 1
     fi
-    local user=`git config --get review.review.pixelos.net.username`
+    local user=`git config --get review.review.ayaka.net.username`
     local review=`git config --get remote.github.review`
     local project=`git config --get remote.github.projectname`
     local command=$1
@@ -463,7 +463,7 @@ EOF
             case $1 in
                 __cmg_*) echo "For internal use only." ;;
                 changes|for)
-                    if [ "$FUNCNAME" = "pixelosgerrit" ]; then
+                    if [ "$FUNCNAME" = "ayakagerrit" ]; then
                         echo "'$FUNCNAME $1' is deprecated."
                     fi
                     ;;
@@ -556,7 +556,7 @@ EOF
                 ${local_branch}:refs/for/$remote_branch || return 1
             ;;
         changes|for)
-            if [ "$FUNCNAME" = "pixelosgerrit" ]; then
+            if [ "$FUNCNAME" = "ayakagerrit" ]; then
                 echo >&2 "'$FUNCNAME $command' is deprecated."
             fi
             ;;
@@ -655,15 +655,15 @@ EOF
     esac
 }
 
-function pixelosrebase() {
+function ayakarebase() {
     local repo=$1
     local refs=$2
     local pwd="$(pwd)"
     local dir="$(gettop)/$repo"
 
     if [ -z $repo ] || [ -z $refs ]; then
-        echo "PixelOS Gerrit Rebase Usage: "
-        echo "      pixelosrebase <path to project> <patch IDs on Gerrit>"
+        echo "AyakaUI Gerrit Rebase Usage: "
+        echo "      ayakarebase <path to project> <patch IDs on Gerrit>"
         echo "      The patch IDs appear on the Gerrit commands that are offered."
         echo "      They consist on a series of numbers and slashes, after the text"
         echo "      refs/changes. For example, the ID in the following command is 26/8126/2"
@@ -684,7 +684,7 @@ function pixelosrebase() {
     echo "Bringing it up to date..."
     repo sync .
     echo "Fetching change..."
-    git fetch "http://review.pixelos.net/p/$repo" "refs/changes/$refs" && git cherry-pick FETCH_HEAD
+    git fetch "http://review.ayaka.net/p/$repo" "refs/changes/$refs" && git cherry-pick FETCH_HEAD
     if [ "$?" != "0" ]; then
         echo "Error cherry-picking. Not uploading!"
         return
@@ -768,7 +768,7 @@ function dopush()
         echo "Device Found."
     fi
 
-    if (adb shell getprop ro.custom.device | grep -q "$CUSTOM_BUILD") || [ "$FORCE_PUSH" = "true" ];
+    if (adb shell getprop ro.ayaka.device | grep -q "$AYAKA_BUILD") || [ "$FORCE_PUSH" = "true" ];
     then
     # retrieve IP and PORT info if we're using a TCP connection
     TCPIPPORT=$(adb devices \
@@ -887,7 +887,7 @@ EOF
     rm -f $OUT/.log
     return 0
     else
-        echo "The connected device does not appear to be $CUSTOM_BUILD, run away!"
+        echo "The connected device does not appear to be $AYAKA_BUILD, run away!"
     fi
 }
 

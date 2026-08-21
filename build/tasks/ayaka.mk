@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Unlegacy-Android
+# Copyri# Copyright (C) 2017 Unlegacy-Android
 # Copyright (C) 2017,2020 The LineageOS Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,17 @@
 # limitations under the License.
 
 # -----------------------------------------------------------------
-# PixelOS OTA update package
+# AyakaUI OTA update package
 
-CUSTOM_TARGET_PACKAGE := $(PRODUCT_OUT)/PixelOS_$(CUSTOM_VERSION).zip
+AYAKA_TARGET_PACKAGE := $(PRODUCT_OUT)/AyakaUI_$(AYAKA_VERSION).zip
 
 MD5 := prebuilts/build-tools/path/$(HOST_PREBUILT_TAG)/md5sum
 
-$(CUSTOM_TARGET_PACKAGE): $(INTERNAL_OTA_PACKAGE_TARGET)
-	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(CUSTOM_TARGET_PACKAGE)
-	$(hide) $(MD5) $(CUSTOM_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(CUSTOM_TARGET_PACKAGE).md5sum
-	@echo "Package Complete: $(CUSTOM_TARGET_PACKAGE)" >&2
+$(AYAKA_TARGET_PACKAGE): $(INTERNAL_OTA_PACKAGE_TARGET)
+	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(AYAKA_TARGET_PACKAGE)
+	$(hide) $(MD5) $(AYAKA_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(AYAKA_TARGET_PACKAGE).md5sum
+	$(hide) ./vendor/custom/build/tools/ota.sh $(CUSTOM_TARGET_PACKAGE)
+	@echo "Package Complete: $(AYAKA_TARGET_PACKAGE)" >&2
 
-.PHONY: pixelos
-pixelos: $(CUSTOM_TARGET_PACKAGE) $(DEFAULT_GOAL)
+.PHONY: ayaka
+ayaka: $(AYAKA_TARGET_PACKAGE) $(DEFAULT_GOAL)
