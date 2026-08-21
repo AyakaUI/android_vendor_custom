@@ -63,10 +63,6 @@ PRODUCT_PACKAGES += \
     LMOFreeform \
     LMOFreeformSidebar
 
-# OmniJaws
-PRODUCT_PACKAGES += \
-    OmniJaws
-
 PRODUCT_PACKAGES += \
     DroidSpaces
 
@@ -89,11 +85,6 @@ ifneq ($(TARGET_SUPPORTS_QUICK_TAP),false)
 PRODUCT_PACKAGES += \
     ColumbusService
 endif
-
-# Themes
-PRODUCT_PACKAGES += \
-    ThemePicker \
-    ThemesStub
 
 # TouchGesture
 PRODUCT_PACKAGES += \
