@@ -19,7 +19,7 @@ DEVICE=${RAW_DEVICE#*_}
 ROM_TYPE="${2:-GAPPS}"
 
 ROM_NAME="AyakaUI"
-BUILD_VERSION="QPR0"
+BUILD_VERSION="seventeen"
 OUT_DIR="out/target/product/$DEVICE"
 
 ZIP=$(ls ${OUT_DIR}/${ROM_NAME}*OFFICIAL*.zip 2>/dev/null | sort -r | head -n 1)
