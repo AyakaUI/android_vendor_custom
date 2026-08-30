@@ -23,7 +23,8 @@ MD5 := prebuilts/build-tools/path/$(HOST_PREBUILT_TAG)/md5sum
 $(AYAKA_TARGET_PACKAGE): $(INTERNAL_OTA_PACKAGE_TARGET)
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(AYAKA_TARGET_PACKAGE)
 	$(hide) $(MD5) $(AYAKA_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(AYAKA_TARGET_PACKAGE).md5sum
-	$(hide) ./vendor/custom/build/tools/ota.sh $(CUSTOM_TARGET_PACKAGE)
+	$(hide) ./vendor/custom/build/tools/banner.sh
+	$(hide) ./vendor/custom/build/tools/ota.sh $(TARGET_PRODUCT_SHORT) --json
 	@echo "Package Complete: $(AYAKA_TARGET_PACKAGE)" >&2
 
 .PHONY: ayaka
