@@ -11,6 +11,7 @@ BUILD_VERSION="17.0"
 OTA_REPO_URL="https://github.com/AyakaUI/official_devices.git"
 OTA_REPO_BRANCH="seventeen"
 OTA_REPO_DIR="/tmp/ayaka_ota"
+JSON_ONLY=false
 
 # --------------------------------------------------------
 # Helper Functions & Logging
@@ -48,7 +49,22 @@ setup_environment() {
 }
 
 parse_arguments() {
-    local raw_device="${1:-$TARGET_PRODUCT}"
+    local raw_device=""
+    
+    for arg in "$@"; do
+        case "$arg" in
+            --json)
+                JSON_ONLY=true
+                ;;
+            *)
+                if [[ -z "$raw_device" ]]; then
+                    raw_device="$arg"
+                fi
+                ;;
+        esac
+    done
+
+    raw_device="${raw_device:-$TARGET_PRODUCT}"
     DEVICE="${raw_device#*_}"
 
     if [[ -z "$DEVICE" ]]; then
@@ -78,7 +94,7 @@ find_ota_zip() {
     log_info "Found Build ZIP: ${FILENAME}"
 
     # Check if UNOFFICIAL build
-    if [[ "$FILENAME" == *"UNOFFICIAL"* ]]; then
+    if [[ "$FILENAME" == *"UNOFFICIAL"* && "$JSON_ONLY" = false ]]; then
         log_step "Skipping OTA Generation\n\nReason: UNOFFICIAL build detected"
         exit 0
     fi
@@ -121,7 +137,7 @@ extract_metadata() {
     POST_TIMESTAMP=$(echo "$metadata" | grep "^post-timestamp=" | cut -d= -f2 || true)
     OS_PATCH_LEVEL=$(echo "$metadata" | grep "^post-security-patch-level=" | cut -d= -f2 || true)
     OS_SDK_LEVEL=$(echo "$metadata" | grep "^post-sdk-level=" | cut -d= -f2 || true)
-    OTA_PROPERTY_FILES=$(echo "$metadata" | grep "^ota-property-files=" | cut -d= -f2 || true)
+    OTA_PROPERTY_FILES=$(echo "$metadata" | grep "^ota-property-files=" | cut -d= -f2 | xargs || true)
 
     if [[ -z "$POST_TIMESTAMP" ]]; then
         POST_TIMESTAMP=$(date +%s)
@@ -135,6 +151,10 @@ extract_metadata() {
 }
 
 check_additional_images() {
+    if [[ -z "$URL" ]]; then
+        return
+    fi
+
     log_info "Checking for additional images..."
     local build_dir
     build_dir=$(dirname "$URL")
@@ -154,16 +174,11 @@ check_additional_images() {
     done
 }
 
-generate_json_and_push() {
-    log_info "Cloning OTA repository..."
-    rm -rf "$OTA_REPO_DIR"
-    git clone "$OTA_REPO_URL" "$OTA_REPO_DIR" --depth 1
+build_json_payload() {
+    local target_file="$1"
+    mkdir -p "$(dirname "$target_file")"
 
-    local json_file="$OTA_REPO_DIR/API/updater/${DEVICE}.json"
-    mkdir -p "$(dirname "$json_file")"
-
-    log_info "Generating OTA JSON configuration..."
-    cat <<EOF > "$json_file"
+    cat <<EOF > "$target_file"
 [
   {
     "datetime": $POST_TIMESTAMP,
@@ -175,7 +190,7 @@ generate_json_and_push() {
         "ota_property_files": "$OTA_PROPERTY_FILES",
         "sha256": "$SHA256",
         "size": $SIZE,
-        "url": "$URL"
+        "url": "${URL:-"https://example.com/dummy.zip"}"
       }
     ],
     "type": "ci",
@@ -183,7 +198,7 @@ generate_json_and_push() {
 EOF
 
     if [[ -n "$IMAGES_JSON" ]]; then
-        cat <<EOF >> "$json_file"
+        cat <<EOF >> "$target_file"
 ,
     "additional_images": [
 $(echo -e "$IMAGES_JSON")
@@ -191,11 +206,30 @@ $(echo -e "$IMAGES_JSON")
 EOF
     fi
 
-    cat <<EOF >> "$json_file"
+    cat <<EOF >> "$target_file"
 
   }
 ]
 EOF
+}
+
+create_local_json() {
+    local output_json="${ROM_ROOT}/${DEVICE}.json"
+    log_info "Generating local JSON file at ${output_json}..."
+    
+    build_json_payload "$output_json"
+    
+    log_success "Local JSON created successfully:"
+    cat "$output_json"
+}
+
+generate_json_and_push() {
+    log_info "Cloning OTA repository..."
+    rm -rf "$OTA_REPO_DIR"
+    git clone "$OTA_REPO_URL" "$OTA_REPO_DIR" --depth 1
+
+    local json_file="$OTA_REPO_DIR/API/updater/${DEVICE}.json"
+    build_json_payload "$json_file"
 
     log_info "Generated JSON Output:"
     cat "$json_file"
@@ -213,9 +247,16 @@ main() {
     setup_environment
     parse_arguments "$@"
     find_ota_zip
+    extract_metadata
+
+    if [[ "$JSON_ONLY" = true ]]; then
+        create_local_json
+        log_step "✅ JSON file created locally for $DEVICE"
+        exit 0
+    fi
+
     check_credentials
     upload_artifact
-    extract_metadata
     check_additional_images
     generate_json_and_push
 
