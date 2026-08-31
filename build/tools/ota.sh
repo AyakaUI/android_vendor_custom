@@ -10,7 +10,7 @@ ROM_NAME="AyakaUI"
 BUILD_VERSION="17.0"
 OTA_REPO_URL="https://github.com/AyakaUI/official_devices.git"
 OTA_REPO_BRANCH="seventeen"
-OTA_REPO_DIR="/tmp/ayaka_ota"
+OTA_REPO_DIR="$HOME/tmp/ayaka_ota"
 JSON_ONLY=false
 
 # --------------------------------------------------------
@@ -116,17 +116,25 @@ upload_artifact() {
     fi
 
     log_info "Uploading build via Lab binary..."
+
     local lab_output
     lab_output=$("$lab_bin" "$DEVICE")
 
-    URL=$(echo "$lab_output" | grep "OTA_URL_RESULT:" | cut -d' ' -f2)
 
-    if [[ -z "$URL" ]]; then
+    GITLAB_URL=$(echo "$lab_output" | grep "OTA_URL_RESULT:" | cut -d' ' -f2)
+
+
+    if [[ -z "$GITLAB_URL" ]]; then
         log_error "Upload failed or URL not returned in output"
         exit 1
     fi
 
-    log_info "Artifact Uploaded URL: $URL"
+
+    convert_download_url "$FILENAME"
+
+
+    log_info "GitLab URL: $GITLAB_URL"
+    log_info "Download URL: $URL"
 }
 
 extract_metadata() {
@@ -194,23 +202,31 @@ build_json_payload() {
       }
     ],
     "type": "ci",
-    "version": "$BUILD_VERSION"
+    "version": "$BUILD_VERSION"$(if [[ -n "$IMAGES_JSON" ]]; then echo ","; fi)
 EOF
 
+
     if [[ -n "$IMAGES_JSON" ]]; then
+
         cat <<EOF >> "$target_file"
-,
     "additional_images": [
 $(echo -e "$IMAGES_JSON")
     ]
 EOF
+
     fi
+
 
     cat <<EOF >> "$target_file"
 
   }
 ]
 EOF
+}
+
+convert_download_url() {
+    local filename="$1"
+    URL="https://ayakaui.vercel.app/d/${OTA_REPO_BRANCH}/${DEVICE}/${filename}"
 }
 
 create_local_json() {
