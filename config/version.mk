@@ -10,7 +10,7 @@ PRODUCT_PRODUCT_PROPERTIES += \
     ro.custom.build.date=$(CUSTOM_BUILD_DATE) \
     ro.ayaka.device=$(AYAKA_BUILD) \
     ro.ayaka.maintainer=$(AYAKA_MAINTAINER) \
-    ro.custom.version=Ayaka_$(CUSTOM_VERSION)
+    ro.ayaka.version=Ayaka_$(CUSTOM_VERSION)
 
 # Versioning System
 AYAKA_BUILD_DATETIME := $(shell date +%s)
