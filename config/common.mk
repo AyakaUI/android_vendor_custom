@@ -95,5 +95,3 @@ include vendor/custom/config/ota.mk
 
 # Version
 include vendor/custom/config/version.mk
-
--include vendor/certification/config.mk
