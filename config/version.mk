@@ -28,7 +28,7 @@ endif
 ifeq ($(IS_OFFICIAL),true)
     BUILD_TYPE ?= OFFICIAL
     PRODUCT_PRODUCT_PROPERTIES += \
-        net.ayaka.build_type=official \
+        net.ayaka.build_type=ci \
         net.ayaka.version=$(CUSTOM_VERSION_PROP)
 else
     BUILD_TYPE ?= UNOFFICIAL
