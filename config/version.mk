@@ -19,6 +19,7 @@ AYAKA_BUILD_DATE := $(shell date -d @$(AYAKA_BUILD_DATETIME) +"%Y%m%d-%H%M%S")
 TARGET_PRODUCT_SHORT := $(subst ayaka_,,$(AYAKA_BUILD))
 
 ifeq ($(WITH_GMS),true)
+    $(call inherit-product, vendor/pixel/gms/products/gms.mk)
     AYAKA_BUILD_TYPE ?= GAPPS
 else
     AYAKA_BUILD_TYPE ?= VANILLA
