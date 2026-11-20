@@ -168,7 +168,7 @@ check_additional_images() {
     build_dir=$(dirname "$URL")
 
     IMAGES_JSON=""
-    for image in boot.img vendor_boot.img; do
+    for image in boot.img vendor_boot.img dtbo.img; do
         local image_url="${build_dir}/${image}"
 
         if curl -fsI "$image_url" >/dev/null 2>&1; then
